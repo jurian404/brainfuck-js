@@ -257,9 +257,3 @@ function runDetailedInfo(code, input){
 
 
 module.exports = {run, runDetailedInfo, runWithFeedback};
-
-console.log(run(",.[.-]", "9"));
-console.log("next ->>>");
-console.log(runDetailedInfo(",.[.-]", "9"));
-console.log("next ->>>");
-console.log(runWithFeedback(",.[.-]", "9"));
