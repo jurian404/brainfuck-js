@@ -1,0 +1,28 @@
+{
+  "name": "@jurian.w/bf-js",
+  "version": "1.0.1",
+  "description": "This package let you run brainfuck code in javascript",
+  "main": "main.js",
+  "files": [
+    "main.js",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jurian404/brainfuck-js.git"
+  },
+  "keywords": [
+    "bf-js",
+    "bf",
+    "brainfuck"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jurian404/brainfuck-js/issues"
+  },
+  "homepage": "https://github.com/jurian404/brainfuck-js#readme"
+}
