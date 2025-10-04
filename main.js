@@ -165,6 +165,23 @@ class Runner{
         return result;
     }
 
+    explain(level = 0){
+        const indent = ' '.repeat(level * 3);
+        let backspaceLength = this._values.length.toString().length;
+        let i = 0;
+        for(const task of this._values){
+            i += 1;
+            if(typeof task === 'object'){
+                if(task instanceof Runner || task instanceof Loop){
+                    console.log(`${indent}${i}| Loop:`);
+                    task.explain(level + 1);
+                }
+            } else {
+                console.log(`${indent}${i}${' '.repeat(backspaceLength - i.toString().length)}| ${task}`);
+            }
+        }
+    }
+
     run(storage, input, feedback = false){
         const result = this._run(storage, input, feedback);
         if(result){
@@ -220,6 +237,8 @@ function runWithFeedback(code, input){
         console.time('Finished build and ready to run after');
         const built = builder(code);
         console.timeEnd('Finished build and ready to run after');
+        console.log("Script structure:");
+        built.explain();
         console.time('Finished storage setup after');
         const storage = new Storage();
         console.timeEnd('Finished storage setup after');
@@ -255,5 +274,6 @@ function runDetailedInfo(code, input){
     }
 }
 
+console.log(runWithFeedback(',.>[+--]<+.', 'A'));
 
 module.exports = {run, runDetailedInfo, runWithFeedback};

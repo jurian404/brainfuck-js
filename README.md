@@ -1,15 +1,16 @@
 # brainfuck-js
 This Project let you run brainfuck code in Javascript
 
-## How to use it
-#### Installation
-Use npm to install the package:
+## Installation
+Use npm to install the package
 ```bash
 npm i @jurian.w/bf-js
 ```
-Then, you can use it in your Node.js project.
 
-If you just want the result returned as a string:
+## Usage
+
+### Default Output
+If you just want the result returned as a string you can use the `run()` function:
 ```javascript
 const bf = require("@jurian.w/bf-js");
 const code = ",.+.";
@@ -21,6 +22,8 @@ console.log(bf.run(code, input))
 ```javascript
 'AB'
 ```
+
+### More Detailed Output
 If you want more detailed output, including the integer values of the output characters, you can use the `runDetailedInfo()` function:
 ```javascript
 const bf = require("@jurian.w/bf-js");
@@ -33,6 +36,8 @@ console.log(bf.runDetailedInfo(code, input))
 ```javascript>
 [ { char: 'A', code: 65 }, { char: 'B', code: 66 } ]
 ```
+
+### Debug Output
 If you just want to use it to debug your frainfuck code, you can use the `runWithFeedback()` function:
 ```javascript
 const bf = require("@jurian.w/bf-js");
@@ -43,13 +48,23 @@ console.log(bf.runWithFeedback(code, input))
 ```
 #### Console Output:
 ````bash>
-Finished build and ready to run after: 0.045ms
-Finished storage setup after: 0.022ms
+Finished build and ready to run after: 0.059ms
+Script structure:
+1| ,
+2| .
+3| >
+4| Loop:
+   1| +
+   2| -
+   3| -
+5| <
+6| +
+7| .
+Finished storage setup after: 0.026ms
 out:  65  -->  A
 out:  66  -->  B
-Successfully finished script after: 0.152ms
+Successfully finished script after: 0.172ms
 ````
-
 
 #### Output:
 ```javascript>
