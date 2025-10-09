@@ -1,14 +1,19 @@
 {
   "name": "@jurian.w/bf-js",
   "version": "1.0.2",
-  "description": "This package let you run brainfuck code in javascript",
+  "description": "A Brainfuck interpreter written in JavaScript for Node.js and the browser.",
   "main": "main.js",
+  "exports": {
+    ".": "./main.js",
+    "./transpiler": "./src/transpiler.js",
+    "./interpreter": "./src/interpreter.js"
+  },
   "files": [
     "main.js",
     "README.md"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test.txt specified\" && exit 1"
   },
   "repository": {
     "type": "git",
