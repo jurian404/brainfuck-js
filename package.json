@@ -1,7 +1,7 @@
 {
   "name": "@jurian.w/bf-js",
-  "version": "1.0.3",
-  "description": "A Brainfuck interpreter written in JavaScript for Node.js and the browser.",
+  "version": "1.1.0",
+  "description": "A Brainfuck transpiler and interpreter written in JavaScript.",
   "main": "main.js",
   "exports": {
     ".": "./main.js",
@@ -10,7 +10,8 @@
   },
   "files": [
     "main.js",
-    "README.md"
+    "README.md",
+    "src/"
   ],
   "scripts": {
     "test": "echo \"Error: no test.txt specified\" && exit 1"
@@ -22,7 +23,9 @@
   "keywords": [
     "bf-js",
     "bf",
-    "brainfuck"
+    "brainfuck",
+    "transpiler",
+    "interpreter"
   ],
   "author": "",
   "license": "MIT",
