@@ -5,7 +5,3 @@ module.exports = {
     Transpiler,
     Interpreter,
 }
-
-const interpreter = new Interpreter();
-interpreter.build(",+.,+.")
-interpreter.executeAndShowStepByStepRePlay("ABC");
