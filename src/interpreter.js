@@ -136,7 +136,7 @@ class LoggerEntry{
         console.log("------------------------------------------------\nCode progress:");
         console.log(' '.repeat(this._pointerPosition - 1) + "↓");
         console.log(code);
-        console.log("Input progress:");
+        console.log("Next input character:");
         console.log(' '.repeat(this._inputPosition) + "↓");
         console.log(input);
         this._isError? console.error(this._actionMessage): console.log(this._actionMessage)
@@ -342,7 +342,6 @@ class Runner{
                             const char = string[index] || '';
                             const value = char.charCodeAt(0);
                             index++;
-                            console.log("index:", index, string, char);
                             if(char === ''){
                                 feedback? console.error(`Warning: The input has no more characters to read. Just setting to 0.`): null;
                                 logger? logEntry.setActionMessage(`Warning: The input has no more characters to read. Just setting to 0.`): null;

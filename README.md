@@ -10,7 +10,7 @@ npm i @jurian.w/bf-js
 ## Usage
 
 ### Transpiler 
-The transpiler can be user to run brainfuck code efficiently in Javascript.
+The transpiler can be used to run brainfuck code efficiently in Javascript.
 It transpiles the brainfuck code to a Javascript function, which can be run multiple times with different input. <br>
 #### Import and create transpiler instance
 ```javascript
@@ -29,19 +29,19 @@ const success = transpiler.transpile(code); // returns true if transpilation was
 
 #### Run
 After transpiling, you can run the transpiled code using the `run()` method.
-It needs an input string with one single character as argument.
+It needs a string as argument that is a sequence of all input values.
 It returns the output as a string. If there is a critical error, it returns `false`.
 <br> Critical errors are:
 - No code has been transpiled yet
 - No input string has been provided
-- Run into an infinite loop (see LoopLimit below)
+- Ran into an infinite loop (see [LoopLimit](#looplimit) for more information)
 
 ```javascript
-const result = transpiler.run("A"); 
+const result = transpiler.run("ABC"); 
 ```
 
 #### LoopLimit
-To prevent infinite loops, there is a loop limit. The default is 10000 iterations per loop.
+To prevent infinite loops, there is a loop limit. The default is 2000 iterations per loop.
 You can change this limit by setting the `loopLimit()` property of the transpiler instance.
 It will change the limit for all future runs. <br>
 It needs a positive integer as argument.
@@ -103,7 +103,7 @@ End of script structure.
 ```
 
 #### LoopLimit
-To prevent infinite loops, there is a loop limit. The default is 10000 iterations per loop.
+To prevent infinite loops, there is a loop limit. The default is 2000 iterations per loop.
 You can change this limit by setting the `loopLimit()` property of the interpreter instance.
 It will change the limit for all future runs. <br>
 It needs a positive integer as first argument. <br>
@@ -114,11 +114,11 @@ const success = interpreter.setLoopLimit(250);
 
 #### Execute
 After building the structure, you can run the code using the `execute()` method.
-It needs an input string with one single character as argument. Optionally you can provide `true` as a second argument to get console feedback while executing the code. <br>
+It needs a string as argument that is a sequence of all input values. Optionally you can provide `true` as a second argument to get console feedback while executing the code. <br>
 It returns the output as a string. If there is a critical error, the command that caused the error will be skipped and the execution will continue. <br>
 
 ```javascript
-const response = interpreter.execute("A");
+const response = interpreter.execute("ABC");
 ```
 
 #### Execute with feedback log
@@ -129,27 +129,33 @@ It returns an object with three properties:
 - `result`: The output as a string
 - `responses`: An array with objects that contains `char` (the output character) and `int` (the ASCII value of the output character)
 ```javascript
-const response = interpreter.executeAndShowFullLog("A");
+const response = interpreter.executeAndShowFullLog("ABC");
 ```
 
 Example output:
 ```Hash
 ------------------------------------------------
 Code progress:
- ↓
-,.+.
-Select current char to output: "A" with code 65
+↓
+,+.,+.
+Next input character:
+↓
+ABC
+Insert input value: "A" → 65
  ↓ Selected
-[65]
- ↓ Get current value
+[0]
+ ↓ Set to 65
 [65]
 
  Current output:
-"" ← "A" Ascii 65
+"" 
 ------------------------------------------------
 Code progress:
-  ↓
-,.+.
+ ↓
+,+.,+.
+Next input character:
+ ↓
+ABC
 Increase Storage value
  ↓ Selected
 [65]
@@ -157,11 +163,14 @@ Increase Storage value
 [66]
 
  Current output:
-"A" 
+"" 
 ------------------------------------------------
 Code progress:
-   ↓
-,.+.
+  ↓
+,+.,+.
+Next input character:
+ ↓
+ABC
 Select current char to output: "B" with code 66
  ↓ Selected
 [66]
@@ -169,39 +178,93 @@ Select current char to output: "B" with code 66
 [66]
 
  Current output:
-"A" ← "B" Ascii 66
+"" ← "B" Ascii 66
+------------------------------------------------
+Code progress:
+   ↓
+,+.,+.
+Next input character:
+ ↓
+ABC
+Insert input value: "B" → 66
+ ↓ Selected
+[66]
+ ↓ Set to 66
+[66]
+
+ Current output:
+"B" 
+------------------------------------------------
+Code progress:
+    ↓
+,+.,+.
+Next input character:
+  ↓
+ABC
+Increase Storage value
+ ↓ Selected
+[66]
+ ↓ Added 1
+[67]
+
+ Current output:
+"B" 
+------------------------------------------------
+Code progress:
+     ↓
+,+.,+.
+Next input character:
+  ↓
+ABC
+Select current char to output: "C" with code 67
+ ↓ Selected
+[67]
+ ↓ Get current value
+[67]
+
+ Current output:
+"B" ← "C" Ascii 67
 ------------------------------------------------
 RAM Usage:
-rss          39.36 MB
+rss          39.34 MB
 heapTotal    5.09 MB
-heapUsed     4.17 MB
+heapUsed     4.26 MB
 external     1.48 MB
 arrayBuffers 0.01 MB
-------------------------------------------------
+
+Execution completed successfully.
+Final output: "BC"
 ```
 #### Execute and replay step by step
 You can also run the code, and replay it step by step. <br>
 It needs the same arguments as the `execute()` method. <br>
-It returns a string with the output. If there is a critical error, the command that caused the error will be skipped and the execution will continue. <br>
+If there is a critical error, the command that caused the error will be skipped and the execution will continue. <br>
+It returns an object with three properties:
+- `error`: A boolean that indicates if a critical error occurred
+- `result`: The output as a string
+- `responses`: An array with objects that contains `char` (the output character) and `int` (the ASCII value of the output character)
 
 >Important ! : This function is asynchronous, so you need to use `await` or `.then()` to handle it correctly.
 
 ```javascript
-const response = await interpreter.executeAndShowStepByStepRePlay("A");
+const response = await interpreter.executeAndShowStepByStepRePlay("ABC");
 ```
 
 Example output:
 ```Hash
 RAM Usage:
-rss          37.47 MB
+rss          37.58 MB
 heapTotal    4.84 MB
-heapUsed     3.49 MB
+heapUsed     3.53 MB
 external     1.20 MB
 arrayBuffers 0.01 MB
 ------------------------------------------------
-Code progress:
+Code progress:  
+↓              
+,+.,+.        
+Next input character:
 ↓           
-,.+.       
+ABC        
 Insert input value: "A" → 65
  ↓ Selected
 [0]     
@@ -212,6 +275,5 @@ Insert input value: "A" → 65
 "" 
 ------------------------------------------------
 Press enter to show next step
-
 ```
 

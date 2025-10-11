@@ -1,6 +1,6 @@
 {
   "name": "@jurian.w/bf-js",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "A Brainfuck transpiler and interpreter written in JavaScript.",
   "main": "main.js",
   "exports": {

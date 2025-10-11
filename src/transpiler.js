@@ -172,7 +172,7 @@ class Loop extends Runner{
 class BrainfuckRunTimeTranspiler{
     constructor(){
         this._assembly = null;
-        this._loopLimit = 10000;
+        this._loopLimit = 2000;
     }
 
     transpile(code){
