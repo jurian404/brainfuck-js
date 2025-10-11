@@ -28,9 +28,10 @@ function showMemory() {
 
 
 class Logger{
-    constructor(code, container){
+    constructor(code, input, container){
         this._container = container;
         this._code = code;
+        this._input = input;
         this._logs = [];
     }
 
@@ -47,7 +48,7 @@ class Logger{
     showLog(){
         const result = [];
         for(const entry of this._logs){
-            entry.getLog(result, this._code);
+            entry.getLog(result, this._code, this._input);
             const newChar = entry.getNewChar();
             if(newChar){
                 result.push(newChar);
@@ -58,11 +59,11 @@ class Logger{
 
     async showLogStepByStep(){
         const result = [];
-        console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n")
+        console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
         const waitForEnter = createWaitForEnter();
         for(const entry of this._logs){
-            console.log("\x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A")
-            entry.getLog(result, this._code);
+            console.log("\x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A\x1b[2K \x1b[1A")
+            entry.getLog(result, this._code, this._input);
             const newChar = entry.getNewChar();
             console.log("------------------------------------------------")
             if(newChar){
@@ -79,6 +80,7 @@ class LoggerEntry{
         this._container = container;
         this._logger = logger;
         this._pointerPosition = 0;
+        this._inputPosition = 0;
         this._preContainerState = [];
         this._preSelectedContainer = null;
         this._postContainerState = [];
@@ -91,6 +93,10 @@ class LoggerEntry{
 
     setPointerPosition(position){
         this._pointerPosition = position;
+    }
+
+    setInputPosition(position){
+        this._inputPosition = position;
     }
 
     createPreState(){
@@ -126,10 +132,13 @@ class LoggerEntry{
         this._logger.setError();
     }
 
-    getLog(prelog, code){
+    getLog(prelog, code, input){
         console.log("------------------------------------------------\nCode progress:");
-        console.log(' '.repeat(this._pointerPosition - 1) + "↓")
+        console.log(' '.repeat(this._pointerPosition - 1) + "↓");
         console.log(code);
+        console.log("Input progress:");
+        console.log(' '.repeat(this._inputPosition) + "↓");
+        console.log(input);
         this._isError? console.error(this._actionMessage): console.log(this._actionMessage)
         console.log(this._formatStorage(this._preContainerState, this._preSelectedContainer));
         console.log(this._preContainerState.map(e => '[' + e + ']').join(''));
@@ -269,20 +278,21 @@ class Runner{
         return this._parent;
     }
 
-    _run(storage, input, loopLimit, feedback, logger){
+    _run(storage, string, index, loopLimit, feedback, logger){
         const result = [];
         for(const command of this._values){
             const logEntry = logger? logger.addEntry(): null;
             if(logEntry){
                 logEntry.setPointerPosition(command.id + 1);
                 logEntry.createPreState();
+                logEntry.setInputPosition(index);
             }
             if(command.cmd instanceof Loop || command.cmd instanceof Runner){
                 if(logger){
                     logEntry.setActionMessage('Entering loop');
                     logEntry.createPostState();
                 }
-                result.push(...command.cmd.run(storage, input, loopLimit, feedback, logger, command.id + 2 + command.cmd.getSubCommandLength()))
+                result.push(...command.cmd.run(storage, string, index, loopLimit, feedback, logger, command.id + 2 + command.cmd.getSubCommandLength()))
             } else if (typeof command.cmd === 'string'){
                 switch (command.cmd){
                     case ">":
@@ -323,35 +333,32 @@ class Runner{
                         result.push(newOutput);
                         break;
                     case ",":
-                        let errorOccurred = false;
-                        if(typeof input !== 'string'){
-                            errorOccurred = true;
-                            feedback? console.error(`ERROR: The input must be a string. Got ${typeof input}`): null;
-                            logger? logEntry.setActionMessage(`ERROR: The input must be a string. Got ${typeof input}`): null;
-                        } else if(input.length === 0){
-                            errorOccurred = true;
-                            feedback? console.error(`ERROR: The input must be defined to insert the input. Got ${JSON.stringify(input)}`): null;
-                            logger? logEntry.setActionMessage(`ERROR: The input must be defined to insert the input. Got ${JSON.stringify(input)}`): null;
-                        } else if(input.length !== 1){
-                            errorOccurred = false;
-                            feedback? console.error(`Warning: The input must be a single character. Got ${JSON.stringify(input)}`): null;
-                            logger? logEntry.setActionMessage(`Warning: The input must be a single character. Got ${JSON.stringify(input)}. Only the first character will be used. ${JSON.stringify(input[0])}`): null;
-                        } else {
-                            logger? logEntry.setActionMessage(`Insert input value: ${JSON.stringify(input)} → ${input.charCodeAt(0)}`): null;
-                        }
-                        if(errorOccurred){
+                        if(typeof string !== 'string'){
+                            feedback? console.error(`ERROR: The input must be a string. Got ${typeof string}`): null;
+                            logger? logEntry.setActionMessage(`ERROR: The input must be a string. Got ${typeof string}`): null;
                             logger? logEntry.setError(): null;
                             result.push(false)
                         } else {
-                            const value = input.charCodeAt(0);
-                            storage.container().set(value);
-                            logger?logEntry.setContainerMessage(`Set to ${value}`): null;
+                            const char = string[index] || '';
+                            const value = char.charCodeAt(0);
+                            index++;
+                            console.log("index:", index, string, char);
+                            if(char === ''){
+                                feedback? console.error(`Warning: The input has no more characters to read. Just setting to 0.`): null;
+                                logger? logEntry.setActionMessage(`Warning: The input has no more characters to read. Just setting to 0.`): null;
+                                storage.container().set(0);
+                                logger? logEntry.setContainerMessage(`Set to 0`): null;
+                            } else {
+                                logger? logEntry.setActionMessage(`Insert input value: ${JSON.stringify(char)} → ${value}`): null;
+                                storage.container().set(value);
+                                logger?logEntry.setContainerMessage(`Set to ${value}`): null;
+                            }
                         }
                         break;
                     default:
-                        feedback? console.error(`ERROR: The input must be a string. Got ${typeof input}`): null;
+                        feedback? console.error(`ERROR: The input must be a string. Got ${typeof string}`): null;
                         if(logger){
-                            logEntry.setActionMessage(`ERROR: The input must be a string. Got ${typeof input}`);
+                            logEntry.setActionMessage(`ERROR: The input must be a string. Got ${typeof string}`);
                             logEntry.setError();
                             result.push(false)
                         }
@@ -360,7 +367,7 @@ class Runner{
                 logger? logEntry.createPostState(): null
             }
         }
-        return result;
+        return {res: result, i: index};
     }
 
     getSubCommandLength(){
@@ -375,8 +382,8 @@ class Runner{
         return length;
     }
 
-    run(storage, input, loopLimit, feedback = true, logger = false, codeposition) {
-        return this._run(storage, input, loopLimit, feedback, logger);
+    run(storage, input, index, loopLimit, feedback = true, logger = false, codeposition) {
+        return this._run(storage, input, index, loopLimit, feedback, logger);
     }
 
     structure(level = 0){
@@ -403,27 +410,31 @@ class Loop extends Runner{
         super(parent);
     }
 
-    run(storage, input, loopLimit, feedback, logger, codePosition){
+    run(storage, input, index, loopLimit, feedback, logger, codePosition){
         const results = []
         let i = 0;
         while (storage.container().get() !== 0){
             i++;
             if(i > loopLimit){
-                feedback? console.error(`ERROR: Too many loop limit is ${i}`): null;
+                feedback? console.error(`ERROR: Too many loops. Limit is ${i}`): null;
                 if(logger){
                     const logEntry = logger.addEntry();
                     logEntry.setPointerPosition(codePosition);
+                    logEntry.setInputPosition(index);
                     logEntry.createPostState();
                     logEntry.createPreState();
                     logEntry.setActionMessage(`ERROR: Reached max amount of loop: ${i - 1}. Possibly an endless loop. Leaving Loop`);
                 }
                 return results;
             }
-            results.push(...this._run(storage, input, loopLimit, feedback, logger));
+            const res = this._run(storage, input, index, loopLimit, feedback, logger);
+            index = res.i;
+            results.push(...res.res);
         }
         if(logger){
             const logEntry = logger.addEntry();
             logEntry.setPointerPosition(codePosition);
+            logEntry.setInputPosition(index);
             logEntry.createPostState();
             logEntry.createPreState();
             logEntry.setActionMessage('Leaving the loop')
@@ -436,7 +447,7 @@ class BrainfuckInterpreter {
     constructor(){
         this._assembly = null;
         this._code = null;
-        this._loopLimit = 10000;
+        this._loopLimit = 2000;
     }
 
     _getResult(data, returnJustFalse = false, returnAll = false){
@@ -491,11 +502,11 @@ class BrainfuckInterpreter {
 
     execute(input, feedback = false){
         try{
-            if(this.assembly === null){
+            if(this._assembly === null){
                 return false;
             }
             const storage = new Storage();
-            const result = this._assembly.run(storage, input, this._loopLimit, feedback);
+            const result = this._assembly.run(storage, input, 0, this._loopLimit, feedback).res;
             return this._getResult(result);
         } catch (e){
             console.error("ERROR: Something went wrong. ", e);
@@ -509,11 +520,13 @@ class BrainfuckInterpreter {
                 return false;
             }
             const storage = new Storage();
-            const logger = new Logger(this._code, storage);
-            const result = this._assembly.run(storage, input, this._loopLimit, feedback, logger);
+            const logger = new Logger(this._code, input, storage);
+            const result = this._assembly.run(storage, input, 0, this._loopLimit, feedback, logger).res;
             logger.showLog();
             showMemory();
-            return this._getResult(result, false, true);
+            const resultObj = this._getResult(result, false, true);
+            console.log(`\n${resultObj.error? "There were errors during execution": "Execution completed successfully"}.\nFinal output: ${JSON.stringify(resultObj.result)}\n`);
+            return resultObj;
         } catch (e){
             console.error("ERROR: Something went wrong. ", e);
             return false;
@@ -526,11 +539,13 @@ class BrainfuckInterpreter {
                 return false;
             }
             const storage = new Storage();
-            const logger = new Logger(this._code, storage);
-            const result = this._assembly.run(storage, input, this._loopLimit, feedback, logger);
+            const logger = new Logger(this._code, input, storage);
+            const result = this._assembly.run(storage, input, 0, this._loopLimit, feedback, logger).res;
             showMemory();
             await logger.showLogStepByStep();
-            return this._getResult(result);
+            const resultObj = this._getResult(result, false, true);
+            console.log(`\n${resultObj.error? "There were errors during execution": "Execution completed successfully"}.\nFinal output: ${JSON.stringify(resultObj.result)}\n`);
+            return resultObj;
         } catch (e){
             console.error("ERROR: Something went wrong. ", e);
             return false;

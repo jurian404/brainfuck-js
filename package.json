@@ -1,6 +1,6 @@
 {
   "name": "@jurian.w/bf-js",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A Brainfuck transpiler and interpreter written in JavaScript.",
   "main": "main.js",
   "exports": {
@@ -27,7 +27,7 @@
     "transpiler",
     "interpreter"
   ],
-  "author": "",
+  "author": "Jurian W.",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/jurian404/brainfuck-js/issues"

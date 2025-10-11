@@ -75,8 +75,8 @@ class Runner{
         const right = (container) => container.right();
         const up = (container) => container.current().up();
         const down = (container) => container.current().down();
-        const set = (container, value) => container.current().set(value);
-        const get = (container) => String.fromCharCode(container.current().get());
+        const set = (container, string, i) => {container.current().set(string.charCodeAt(i) || 0);return {i: i + 1}};
+        const get = (container) => {return {str: String.fromCharCode(container.current().get())}};
         const result = [];
         for(const task of this._values){
             if(typeof task === 'object'){
@@ -113,18 +113,23 @@ class Runner{
 
     assemble(){
         const assembly = this._assemble();
-        return (container, value, loopLimit) =>{
+        return (container, string, index, loopLimit) =>{
             let result = '';
             for (const task of assembly){
-                const res = task(container, value, loopLimit);
+                const res = task(container, string, index, loopLimit);
                 if(res === false){
                     return false;
                 }
-                if(res !== undefined) {
-                    result += res;
+                if(typeof res === 'object') {
+                    if(res.i !== undefined){
+                        index = res.i;
+                    }
+                    if(res.str !== undefined){
+                        result += res.str;
+                    }
                 }
             }
-            return result;
+            return {i: index, str: result};
         }
     }
 }
@@ -135,7 +140,7 @@ class Loop extends Runner{
     }
     assemble() {
         const tasks = this._assemble();
-        return (container, value, loopLimit) => {
+        return (container, string, index, loopLimit) => {
             let i = 0;
             let result = '';
             while (container.current().get() !== 0) {
@@ -144,16 +149,21 @@ class Loop extends Runner{
                     return false;
                 }
                 for (const task of tasks) {
-                    const res = task(container, value, loopLimit);
+                    const res = task(container, string, index, loopLimit);
                     if(res === false){
                         return false;
                     }
-                    if(res !== undefined){
-                        result += res;
+                    if(typeof res === 'object') {
+                        if(res.i !== undefined){
+                            index = res.i;
+                        }
+                        if(res.str !== undefined){
+                            result += res.str;
+                        }
                     }
                 }
             }
-            return result;
+            return {i: index, str: result};
         };
     }
 }
@@ -195,9 +205,8 @@ class BrainfuckRunTimeTranspiler{
         if(!(typeof input === 'string')){
             return false;
         }
-        input = input.charCodeAt(0);
         const container = new Container();
-        const result = this._assembly(container, input, this._loopLimit);
+        const result = this._assembly(container, input, 0, this._loopLimit).str;
         if(result === false){
             return false;
         }
